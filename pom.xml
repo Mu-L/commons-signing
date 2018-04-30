@@ -1,0 +1,231 @@
+<?xml version="1.0"?>
+<!--
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-parent</artifactId>
+    <version>43</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>commons-signing</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>Apache Commons Signing</name>
+
+  <inceptionYear>2018</inceptionYear>
+  <description>The Apache Commons Code Signing Library.</description>
+
+  <url>http://commons.apache.org/proper/commons-signing/</url>
+
+  <issueManagement>
+    <system>jira</system>
+    <url>http://issues.apache.org/jira/browse/SIGNING</url>
+  </issueManagement>
+
+  <scm>
+    <connection>scm:git:https://gitbox.apache.org/repos/asf/commons-signing.git</connection>
+    <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/commons-signing.git</developerConnection>
+    <url>https://gitbox.apache.org/repos/asf?p=commons-signing.git</url>
+  </scm>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.ant</groupId>
+      <artifactId>ant</artifactId>
+      <version>1.9.11</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <distributionManagement>
+    <!-- Cannot define in parent ATM, see COMMONSSITE-26 -->
+    <site>
+      <id>apache.website</id>
+      <name>Apache Commons Site</name>
+      <url>scm:svn:https://svn.apache.org/repos/infra/websites/production/commons/content/proper/commons-signing/</url>
+    </site>
+  </distributionManagement>
+  
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <commons.componentid>signing</commons.componentid>
+    <commons.module.name>org.apache.commons.signing</commons.module.name>
+    <commons.release.version>0.0.1</commons.release.version>
+    <commons.release.desc>(Java 8)</commons.release.desc>
+    <commons.jira.id>SIGNING</commons.jira.id>
+    <commons.jira.pid>12322020</commons.jira.pid>
+    <commons.site.path>signing</commons.site.path>
+    <commons.scmPubUrl>https://svn.apache.org/repos/infra/websites/production/commons/content/proper/commons-signing</commons.scmPubUrl>
+    <commons.scmPubCheckoutDirectory>site-content</commons.scmPubCheckoutDirectory>
+    <commons.animal-sniffer.version>1.16</commons.animal-sniffer.version>
+  </properties> 
+
+  <build>
+      <defaultGoal>clean verify apache-rat:check clirr:check javadoc:javadoc</defaultGoal>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.rat</groupId>
+          <artifactId>apache-rat-plugin</artifactId>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+             <!-- Don't allow test to run for more than 30 minutes -->
+              <forkedProcessTimeoutInSeconds>1800</forkedProcessTimeoutInSeconds>
+              <includes>
+                <include>**/Test*.java</include>
+              </includes>
+              <excludes>
+                <!-- nested classes are not handled properly by Surefire -->
+                <exclude>**/Test*$*.java</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+        <plugin>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <configuration>
+            <descriptors>
+              <descriptor>src/assembly/bin.xml</descriptor>
+              <descriptor>src/assembly/src-tar-gz.xml</descriptor>
+              <descriptor>src/assembly/src-zip.xml</descriptor>
+            </descriptors>
+            <tarLongFileMode>gnu</tarLongFileMode>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-scm-publish-plugin</artifactId>
+          <configuration>
+            <ignorePathsToDelete>
+              <ignorePathToDelete>api-*</ignorePathToDelete>
+            </ignorePathsToDelete>
+          </configuration>
+        </plugin>
+      </plugins>
+    </build>
+
+    <reporting>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-changes-plugin</artifactId>
+          <version>${commons.changes.version}</version>
+          <configuration>
+            <xmlPath>${basedir}/src/changes/changes.xml</xmlPath>
+            <template>release-notes.vm</template>
+            <templateDirectory>src/changes</templateDirectory>
+          </configuration>
+          <reportSets>
+            <reportSet>
+              <reports>
+                 <report>changes-report</report>
+              </reports>
+            </reportSet>
+          </reportSets>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-checkstyle-plugin</artifactId>
+          <version>2.17</version>
+          <configuration>
+            <configLocation>${basedir}/checkstyle.xml</configLocation>
+            <enableRulesSummary>false</enableRulesSummary>
+            <headerLocation>${basedir}/license-header.txt</headerLocation>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>findbugs-maven-plugin</artifactId>
+          <version>3.0.5</version>
+          <configuration>
+            <threshold>Normal</threshold>
+            <effort>Default</effort>
+            <excludeFilterFile>${basedir}/findbugs-exclude-filter.xml</excludeFilterFile>
+          </configuration>
+        </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>cobertura-maven-plugin</artifactId>
+        <version>2.7</version>
+      </plugin>
+      <plugin>
+          <groupId>org.apache.rat</groupId>
+          <artifactId>apache-rat-plugin</artifactId>
+        </plugin>
+    </plugins>
+  </reporting>
+    
+  <profiles>
+    <profile>
+      <id>setup-checkout</id>
+      <activation>
+        <file>
+          <missing>site-content</missing>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>1.8</version>
+            <executions>
+              <execution>
+                <id>prepare-checkout</id>
+                <phase>pre-site</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <tasks>
+                    <exec executable="svn">
+                      <arg line="checkout --depth immediates ${commons.scmPubUrl} ${commons.scmPubCheckoutDirectory}" />
+                    </exec>
+    
+                    <exec executable="svn">
+                      <arg line="update --set-depth exclude ${commons.scmPubCheckoutDirectory}/javadocs" />
+                    </exec>
+  
+                    <pathconvert pathsep=" " property="dirs">
+                      <dirset dir="${commons.scmPubCheckoutDirectory}" includes="*" />
+                    </pathconvert>
+                    <exec executable="svn">
+                      <arg line="update --set-depth infinity ${dirs}" />
+                    </exec>
+                  </tasks>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+</project>
