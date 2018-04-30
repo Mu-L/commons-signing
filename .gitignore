@@ -1,0 +1,6 @@
+target
+site-content
+/.classpath
+/.project
+/.settings/
+/bin/
